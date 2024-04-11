@@ -26,7 +26,24 @@ param location string = resourceGroup().location
 @description('Log Analytics workspace id to use for diagnostics settings')
 param logAnalyticsWorkspaceId string
 
-resource mySQLServer 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+@description('Whether or not geo redundant backup is enabled.')
+param geoRedundantBackup string
+
+
+@allowed([
+  'Disabled'
+  'SameZone'
+  'ZoneRedundant'
+])
+@description('High availability mode for a server.')
+param highAvailabilityMode string
+
+
+resource mySQLServer 'Microsoft.DBforMySQL/flexibleServers@2021-05-01' = {
   name: mySQLServerName
   location: location
   sku: {
@@ -35,15 +52,17 @@ resource mySQLServer 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   }
   properties: {
     createMode: 'Default'
-    version: '5.7'
+    version: '8.0'
     administratorLogin: administratorLogin
     administratorLoginPassword: administratorPassword
-    sslEnforcement: 'Enabled'
-    minimalTlsVersion: 'TLS1_2'
+    backup: {
+      geoRedundantBackup: geoRedundantBackup
+    }
+    highAvailability: { mode: highAvailabilityMode }
   }
 }
 
-resource firewallRules 'Microsoft.DBforMySQL/servers/firewallRules@2017-12-01' = {
+resource firewallRules 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-05-01' = {
   parent: mySQLServer
   name: 'AllowAzureIPs'
   properties: {

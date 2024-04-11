@@ -22,6 +22,22 @@ param mySQLServerSku string = 'B_Gen5_1'
 @secure()
 param databasePassword string
 
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+@description('Whether or not geo redundant backup is enabled.')
+param geoRedundantBackup string
+
+
+@allowed([
+  'Disabled'
+  'SameZone'
+  'ZoneRedundant'
+])
+@description('High availability mode for a server.')
+param highAvailabilityMode string
+
 @description('Ghost container full image name and tag')
 param ghostContainerName string = 'andrewmatveychuk/ghost-ai:latest'
 
@@ -152,6 +168,8 @@ module mySQLServer 'modules/mySQLServer.bicep' = {
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     mySQLServerName: mySQLServerName
     mySQLServerSku: mySQLServerSku
+    geoRedundantBackup: geoRedundantBackup
+    highAvailabilityMode: highAvailabilityMode
   }
 }
 
